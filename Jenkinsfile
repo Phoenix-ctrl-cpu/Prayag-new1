@@ -13,7 +13,7 @@ pipeline {
 
     stage("Checkout from SCM"){
             steps {
-            git branch: 'main', credentialsID: 'github', url: 'https://github.com/Phoenix-ctrl-cpu/Prayag-new1'
+            git branch: 'main', credentialsId: 'github', url: 'https://github.com/Phoenix-ctrl-cpu/Prayag-new1'
             }
     }
 
