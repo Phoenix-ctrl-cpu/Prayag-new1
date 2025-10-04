@@ -13,19 +13,19 @@ pipeline {
 
     stage("Checkout from SCM"){
       steps {
-      git branch: 'main', credentialsId: 'github', url: 'https://github.com/Phoenix-ctrl-cpu/Prayag-new1'
+        git branch: 'main', credentialsId: 'github', url: 'https://github.com/Phoenix-ctrl-cpu/Prayag-new1'
       }
     }
 
     stage("Build Application"){
       steps {
-      sh "mvn clean package"
+        sh "mvn clean package"
       }
     }
 
     stage("Test Application"){
       steps {
-      sh "mvn test"
+        sh "mvn test"
       }
     }
   }
