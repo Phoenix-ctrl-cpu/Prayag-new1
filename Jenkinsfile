@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'Jenkins-Agent' }
+  agent { label 'prayagcloud' }
   tools {
     jdk 'Java17'
     maven 'Maven3'
