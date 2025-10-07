@@ -52,5 +52,88 @@ pipeline {
                 }
             }
        }
+
+       stage("Deploy to Staging") {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    // Deploy to staging environment using Docker Compose
+                    sh """
+                        chmod +x scripts/deploy-docker-compose.sh
+                        ./scripts/deploy-docker-compose.sh staging ${IMAGE_TAG}
+                    """
+                }
+            }
+       }
+
+       stage("Health Check") {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    // Wait for application to be ready
+                    sh "sleep 30"
+                    
+                    // Perform health check
+                    sh """
+                        chmod +x scripts/health-check.sh
+                        ./scripts/health-check.sh http://localhost:8080 60
+                    """
+                }
+            }
+       }
+
+       stage("Deploy to Production") {
+            when {
+                branch 'main'
+                // Add approval step for production deployment
+                input message: 'Deploy to Production?', ok: 'Deploy'
+            }
+            steps {
+                script {
+                    // Deploy to production using Kubernetes
+                    sh """
+                        chmod +x scripts/deploy-k8s.sh
+                        ./scripts/deploy-k8s.sh production ${IMAGE_TAG}
+                    """
+                }
+            }
+       }
+
+       stage("Post-Deployment Health Check") {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    // Wait for production deployment to be ready
+                    sh "sleep 60"
+                    
+                    // Perform production health check
+                    sh """
+                        chmod +x scripts/health-check.sh
+                        ./scripts/health-check.sh http://prayag-app.example.com 120
+                    """
+                }
+            }
+       }
+   }
+
+   post {
+       always {
+           // Clean up workspace
+           cleanWs()
+       }
+       success {
+           echo '🎉 Pipeline completed successfully!'
+           // Send success notification (configure as needed)
+       }
+       failure {
+           echo '💥 Pipeline failed!'
+           // Send failure notification (configure as needed)
+       }
    }
 }
