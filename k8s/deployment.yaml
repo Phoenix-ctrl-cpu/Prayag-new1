@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prayag-app-deployment
+  namespace: prayag-app
+  labels:
+    app: prayag-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: prayag-app
+  template:
+    metadata:
+      labels:
+        app: prayag-app
+    spec:
+      containers:
+      - name: prayag-app
+        image: prayag8tiwari/prayag-new1-pipeline:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: APP_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: prayag-app-config
+              key: APP_NAME
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: prayag-app-config
+              key: ENVIRONMENT
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: dockerhub-secret
