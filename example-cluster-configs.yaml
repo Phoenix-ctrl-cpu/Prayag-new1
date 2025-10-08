@@ -1,0 +1,81 @@
+# Example cluster configurations for ArgoCD
+# These are examples - replace with your actual cluster details
+
+---
+# Example: Main cluster configuration
+apiVersion: v1
+kind: Secret
+metadata:
+  name: main-cluster-secret
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: cluster
+type: Opaque
+stringData:
+  name: main
+  server: https://main-cluster-server:6443
+  config: |
+    {
+      "bearerToken": "your-main-cluster-token-here",
+      "tlsClientConfig": {
+        "insecure": false,
+        "caData": "your-main-cluster-ca-data-here"
+      }
+    }
+
+---
+# Example: Prod cluster configuration
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prod-cluster-secret
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: cluster
+type: Opaque
+stringData:
+  name: prod
+  server: https://prod-cluster-server:6443
+  config: |
+    {
+      "bearerToken": "your-prod-cluster-token-here",
+      "tlsClientConfig": {
+        "insecure": false,
+        "caData": "your-prod-cluster-ca-data-here"
+      }
+    }
+
+---
+# Example: Service account for ArgoCD on target clusters
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argocd-manager
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argocd-manager
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argocd-manager
+subjects:
+- kind: ServiceAccount
+  name: argocd-manager
+  namespace: kube-system
